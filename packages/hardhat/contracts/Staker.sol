@@ -5,7 +5,23 @@ import "./ExampleExternalContract.sol"; //https://github.com/OpenZeppelin/openze
 
 contract Staker {
 
+  event Stake(address,uint256);
+  event Withdraw(address,uint256);
+  event DeadlineReached();
+
+
   ExampleExternalContract public exampleExternalContract;
+
+  mapping(address => uint256) public balances;
+  // Mapping of stakers
+  //mapping(address => bool) public hasStaked;
+
+  uint256 public constant threshold = 1 ether;
+  uint256 public deadline = now + 30 seconds;
+
+  bool withdrawAllowed = false;
+
+  uint256 public totalStaked = 0;
 
   constructor(address exampleExternalContractAddress) public {
     exampleExternalContract = ExampleExternalContract(exampleExternalContractAddress);
@@ -13,18 +29,59 @@ contract Staker {
 
   // Collect funds in a payable `stake()` function and track individual `balances` with a mapping:
   //  ( make sure to add a `Stake(address,uint256)` event and emit it for the frontend <List/> display )
+  function stake() public payable {
+    require(timeLeft() > 0, "Deadline Reached");
+    // Update balances
+    balances[msg.sender] += msg.value;
+    //hasStaked[msg.sender] = true;
+    emit Stake(msg.sender, msg.value);
+  }
 
 
   // After some `deadline` allow anyone to call an `execute()` function
   //  It should either call `exampleExternalContract.complete{value: address(this).balance}()` to send all the value
+  function execute() public notCompleted {
+    // Check deadline has been reached
+    require(timeLeft() == 0, "Deadline must be reached");
+    require(balances[msg.sender] > 0, "Nothing Staked");
+    checkWithdrawPolicy();
+    require(!withdrawAllowed, "Did not pass threshold before deadline");
+    if (address(this).balance > threshold){
+      exampleExternalContract.complete{value: address(this).balance}();
+    }
+  }
 
+    // Withdraw function
+  function withdraw(address payable _address) public notCompleted {
+    checkWithdrawPolicy();
+    require(timeLeft() == 0, "deadline must be reached");
+    require(withdrawAllowed, "Passed threshold please execute");
+    require(balances[_address] > 0, "Balance must be > 0");
+
+    emit Withdraw(msg.sender, balances[msg.sender]);
+    balances[_address] = 0;
+  }
 
 
   // if the `threshold` was not met, allow everyone to call a `withdraw()` function
-
+  function checkWithdrawPolicy()  public {
+    withdrawAllowed = true;
+  }
 
 
   // Add a `timeLeft()` view function that returns the time left before the deadline for the frontend
+  function timeLeft() public view returns(uint256) {
+    if (now >= deadline) {
+      return 0;
+    } else {
+      return (deadline - now);
+    }
+  }
 
+  modifier notCompleted() {
+    bool isContractCompleted = exampleExternalContract.completed();
+    require(!isContractCompleted, "ExampleExternalContract Completed");
+    _;
+  }
 
 }

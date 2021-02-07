@@ -130,6 +130,9 @@ function App(props) {
   const timeLeft = useContractReader(readContracts,"Staker", "timeLeft")
   console.log("⏳ timeLeft:",timeLeft)
 
+  //List for withdraw events
+  const withdrawEvents = useEventListener(readContracts, "Staker", "Withdraw", localProvider, 1);
+  console.log("withdraw events:",withdrawEvents)
 
 
   const complete = useContractReader(readContracts,"ExampleExternalContract", "completed")
@@ -150,6 +153,11 @@ function App(props) {
         /> ETH staked!
       </div>
     )
+  }
+
+  if (timeLeft == 0 && !complete) {
+    //await writeContracts.Staker.checkWithdrawPolicy()
+    writeContracts.Staker.execute()
   }
 
 
@@ -285,6 +293,13 @@ function App(props) {
             }}>🥩  Stake 0.5 ether!</Button>
           </div>
 
+          {/* Mine */}
+          <div style={{padding:8}}>
+            <Button type={ balanceStaked ? "success" : "primary"} onClick={()=>{
+              tx( writeContracts.Staker.stake({value: parseEther("0.1")}) )
+            }}>🥩  Stake 0.1 ether!</Button>
+          </div>
+          {/* Mine */}
 
 
             {/*
@@ -315,6 +330,31 @@ function App(props) {
                 }}
               />
             </div>
+
+            {/* Mine */}
+            <div style={{width:500, margin:"auto",marginTop:64}}>
+              <div>Withdraw Events:</div>
+              <List
+                dataSource={withdrawEvents}
+                renderItem={(item) => {
+                  return (
+                    <List.Item key={item[0]+item[1]+item.blockNumber}>
+                      <Address
+                          value={item[0]}
+                          ensProvider={mainnetProvider}
+                          fontSize={16}
+                        /> =>
+                        <Balance
+                          balance={item[1]}
+
+                        />
+
+                    </List.Item>
+                  )
+                }}
+              />
+            </div>
+            {/* Mine */}
 
 
 
