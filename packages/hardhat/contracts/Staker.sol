@@ -13,8 +13,6 @@ contract Staker {
   ExampleExternalContract public exampleExternalContract;
 
   mapping(address => uint256) public balances;
-  // Mapping of stakers
-  //mapping(address => bool) public hasStaked;
 
   uint256 public constant threshold = 1 ether;
   uint256 public deadline = now + 30 seconds;
@@ -33,7 +31,6 @@ contract Staker {
     require(timeLeft() > 0, "Deadline Reached");
     // Update balances
     balances[msg.sender] += msg.value;
-    //hasStaked[msg.sender] = true;
     emit Stake(msg.sender, msg.value);
   }
 
