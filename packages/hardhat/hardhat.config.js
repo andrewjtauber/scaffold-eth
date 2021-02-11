@@ -18,7 +18,7 @@ const { isAddress, getAddress, formatUnits, parseUnits } = utils;
 //
 // Select the network you want to deploy to here:
 //
-const defaultNetwork = "localhost";
+const defaultNetwork = "ropsten";
 
 function mnemonic() {
   try {
@@ -66,7 +66,7 @@ module.exports = {
       },
     },
     ropsten: {
-      url: "https://ropsten.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad", //<---- YOUR INFURA ID! (or it won't work)
+      url: "https://ropsten.infura.io/v3/f0b38289909340a089b7a15df856bab0", //<---- YOUR INFURA ID! (or it won't work)
       accounts: {
         mnemonic: mnemonic(),
       },
@@ -281,7 +281,7 @@ task("account", "Get balance informations for the deployment account.", async (_
 
   var qrcode = require('qrcode-terminal');
   qrcode.generate(address);
-  console.log("‍📬 Deployer Account is " + address)
+  console.log("📬 Deployer Account is " + address)
   for (let n in config.networks) {
     //console.log(config.networks[n],n)
     try {
@@ -385,3 +385,4 @@ task("send", "Send ETH")
 
     return send(fromSigner, txRequest);
 });
+

@@ -34,7 +34,7 @@ const humanizeDuration = require("humanize-duration");
 */
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS['localhost']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS['ropsten']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = true
@@ -155,12 +155,13 @@ function App(props) {
     )
   }
 
+/*
   if (timeLeft == 0 && !complete) {
     //await writeContracts.Staker.checkWithdrawPolicy()
     writeContracts.Staker.execute()
   }
 
-
+*/
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -298,6 +299,11 @@ function App(props) {
             <Button type={ balanceStaked ? "success" : "primary"} onClick={()=>{
               tx( writeContracts.Staker.stake({value: parseEther("0.1")}) )
             }}>🥩  Stake 0.1 ether!</Button>
+          </div>
+          <div style={{padding:8}}>
+            <Button type={ balanceStaked ? "success" : "primary"} onClick={()=>{
+              tx( writeContracts.Staker.stake({value: parseEther("0.001")}) )
+            }}>🥩  Stake 0.001 ether!</Button>
           </div>
           {/* Mine */}
 

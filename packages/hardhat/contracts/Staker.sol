@@ -15,7 +15,7 @@ contract Staker {
   mapping(address => uint256) public balances;
 
   uint256 public constant threshold = 1 ether;
-  uint256 public deadline = now + 30 seconds;
+  uint256 public deadline = now + 60 seconds;
 
   bool withdrawAllowed = false;
 
@@ -42,7 +42,7 @@ contract Staker {
     require(timeLeft() == 0, "Deadline must be reached");
     require(balances[msg.sender] > 0, "Nothing Staked");
     checkWithdrawPolicy();
-    require(!withdrawAllowed, "Did not pass threshold before deadline");
+    require(!withdrawAllowed, "Did Not Pass Threshold Before Deadline");
     if (address(this).balance > threshold){
       exampleExternalContract.complete{value: address(this).balance}();
     }
@@ -54,7 +54,8 @@ contract Staker {
     require(timeLeft() == 0, "deadline must be reached");
     require(withdrawAllowed, "Passed threshold please execute");
     require(balances[_address] > 0, "Balance must be > 0");
-
+    uint256 amount = balances[_address];
+    _address.transfer(amount);
     emit Withdraw(msg.sender, balances[msg.sender]);
     balances[_address] = 0;
   }
@@ -62,7 +63,9 @@ contract Staker {
 
   // if the `threshold` was not met, allow everyone to call a `withdraw()` function
   function checkWithdrawPolicy()  public {
-    withdrawAllowed = true;
+  if (address(this).balance <= threshold) {
+     withdrawAllowed = true;
+  }
   }
 
 
